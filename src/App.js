@@ -1,56 +1,64 @@
 import React from 'react';
-import PropTypes from "prop-types";
+import axios from 'axios';
+import Movie from "./Movie";
 
-const ghibliILike = [
-  {
-    id:1,
-    name: "Totoro",
-    image: "https://i.pinimg.com/564x/ef/ef/e4/efefe4ee1e559e54085bc8cc33d02897.jpg",
-    rating: 5,
-  },
-  {
-    id:2,
-    name: "Haul",
-    image: "https://pbs.twimg.com/profile_images/414670557779464193/ZcPavNDU.jpeg",
-    rating: 4.9,
-  },
-  {
-    id:3,
-    name: "Ponyo",
-    image: "https://img1.daumcdn.net/thumb/C400x400/?fname=http://t1.daumcdn.net/brunch/service/user/40yV/image/57msSqM71XQfFFReQZbkJm3c0Hg.jpg",
-    rating: 4.8,
-  },
-]
+class App extends React.Component{
+  //data가 유동적으로 변함
+  state = {
+    isLoading: true,
+    movies: []
+  };
+  
+  getMovies = async () => {
+    const { 
+      data: {
+        data:{movies}
+      }
+    } = await axios.get(
+      "https://yts.mx/api/v2/list_movies.json?sort_by=rating"
+      );
+  this.setState({ movies, isLoading: false });
+  }
+  componentDidMount(){
+   this.getMovies();
+  }
 
-Ghibli.propTypes = {
-  name: PropTypes.string.isRequired,
-  picture: PropTypes.string.isRequired,
-  rating: PropTypes.number
-};
+  render(){
+    const { isLoading, movies } = this.state;
+  return <div>{isLoading 
+    ? "Loading..." 
+    : movies.map( movie => (
 
-
-function App() {
-  return (
-    <div>
-      {ghibliILike.map(go => (
-        <Ghibli
-         key={go.id}
-         name={go.name}
-         picture={go.image} 
-         rating={go.rating} />
-      ))}
+        <Movie
+          key={movie.id}
+          id={movie.id}
+          year={movie.year} 
+          title={movie.title} 
+          summary={movie.summary} 
+          poster={movie.medium_cover_image} 
+          />
+    ))}
     </div>
-  );
-}
-
-function Ghibli({ name, picture, rating }){
-  return(
-    <div>
-    <h1>I like {name} !</h1>
-    <h4>{rating}/5.0</h4>
-    <img src={picture} alt={name}/>
-    </div>
-  );
+  }
 }
 
 export default App;
+
+
+
+  //   //setState 호출시, state를 refresh하고 render funtion호출
+  //   add = () => {
+  //     this.setState(current=>({count: current.count + 1}));
+  //    };
+  //    minus = () => {
+  //      this.setState(current=>({count: current.count - 1}));
+  //    };
+   
+  //    render(){
+  //      return <div>
+  //        <h1>The number is: {this.state.count}</h1>
+  //        <button onClick={this.add}>add</button>
+  //        <button onClick={this.minus}>minus</button>
+  //        </div>
+  //    }
+  //  }
